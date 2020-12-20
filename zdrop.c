@@ -1,9 +1,9 @@
 /* zdrop.c:
-Version 1.1
 released under Creative Commons Attribution (BY) 4.0 license
 There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 made by PC-XT of MajorGeeks.com for
 http://forums.majorgeeks.com/index.php?threads/zlib-uncompression-for-an-idiot.223640/
+Please report bugs at https://github.com/Quasic/zdrop/issues
 based on public domain zpipe.c Version 1.4 (11 December 2005) by Mark Adler */
 
 /* Version history:
@@ -11,7 +11,9 @@ based on public domain zpipe.c Version 1.4 (11 December 2005) by Mark Adler */
    0.2   5 Oct 2010  Fixed first bug, cleaned up a bit
    1.0   5 Oct 2014  Refined code, fixed crash on file doesn't exist bug, added .z extension support, tested with zlib-1.2.8
    1.1  16 Dec 2015  Cleaned up code for source release
+   1.2  18 Dec 2020  Report VERSION, ZLIB_VERSION, fix internal error# report
 */
+#define VERSION "1.2"
 
 /*Windows bugs:
 The console doesn't stay onscreen long enough to read error messages.
@@ -258,14 +260,15 @@ int main(int argc, char ** argv) {
 			//break;
 			//not used in static compile
 		default:
-			fputs("Internal error #",stderr);
-			fputs(ret,stderr);
-			fputs(nl,stderr);
+			fprintf(stderr,"Internal error #%i\n",ret);
 		}
 		return ret;
 	}
 	/* otherwise, report usage */
-	fputs("Usage: give a zlib file (*.z or *.zlib) to decompress\nor any other file to compress\n(Not all *.z files are zlib. Some are archives that WinZip or WinRAR can open.)\n", stderr);
+	fprintf(stderr,"zdrop version %s (ZLIB version %s)\
+Usage: give a zlib file (*.z or *.zlib) to decompress\
+or any other file to compress to a file with a .zlib extension\
+(Not all *.z files are zlib. Some are archives that WinZip or WinRAR can open.)\n",VERSION,ZLIB_VERSION);
 	return 10;
 }
 /* %ERRORLEVEL%
