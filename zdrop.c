@@ -1,29 +1,29 @@
-/* zpipe.c: example of proper use of zlib's inflate() and deflate()
-   Not copyrighted -- provided to the public domain
-   Version 1.4  11 December 2005  Mark Adler */
+/* zdrop.c:
+Version 1.1
+released under Creative Commons Attribution (BY) 4.0 license
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+made by PC-XT of MajorGeeks.com for
+http://forums.majorgeeks.com/index.php?threads/zlib-uncompression-for-an-idiot.223640/
+based on public domain zpipe.c Version 1.4 (11 December 2005) by Mark Adler */
 
 /* Version history:
-   1.0  30 Oct 2004  First version
-   1.1   8 Nov 2004  Add void casting for unused return values
-                     Use switch statement for inflate() return values
-   1.2   9 Nov 2004  Add assertions to document zlib guarantees
-   1.3   6 Apr 2005  Remove incorrect assertion in inf()
-   1.4  11 Dec 2005  Add hack to avoid MSDOS end-of-line conversions
-                     Avoid some compiler warnings for input and output buffers
- */
+   0.1   4 Oct 2010  Quick first version, tested with zlib-1.2.5, everything but main() from zpipe.c
+   0.2   5 Oct 2010  Fixed first bug, cleaned up a bit
+   1.0   5 Oct 2014  Refined code, fixed crash on file doesn't exist bug, added .z extension support, tested with zlib-1.2.8
+   1.1  16 Dec 2015  Cleaned up code for source release
+*/
+
+/*Windows bugs:
+The console doesn't stay onscreen long enough to read error messages.
+Old versions of windows may use short filenames, so new files may need renaming.
+
+*/
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 #include "zlib.h"
-
-#if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
-#  include <fcntl.h>
-#  include <io.h>
-#  define SET_BINARY_MODE(file) setmode(fileno(file), O_BINARY)
-#else
-#  define SET_BINARY_MODE(file)
-#endif
 
 #define CHUNK 16384
 
@@ -33,6 +33,11 @@
    level is supplied, Z_VERSION_ERROR if the version of zlib.h and the
    version of the library linked do not match, or Z_ERRNO if there is
    an error reading or writing the files. */
+void fexists(char*n){
+  fputs("The file '",stderr);
+  fputs(n,stderr);
+  fputs("' already exists.\0Please delete or rename it before trying this again.",stderr);
+}
 int def(FILE *source, FILE *dest, int level)
 {
     int ret, flush;
@@ -147,59 +152,134 @@ int inf(FILE *source, FILE *dest)
     return ret == Z_STREAM_END ? Z_OK : Z_DATA_ERROR;
 }
 
-/* report a zlib or i/o error */
-void zerr(int ret)
-{
-    fputs("zpipe: ", stderr);
-    switch (ret) {
-    case Z_ERRNO:
-        if (ferror(stdin))
-            fputs("error reading stdin\n", stderr);
-        if (ferror(stdout))
-            fputs("error writing stdout\n", stderr);
-        break;
-    case Z_STREAM_ERROR:
-        fputs("invalid compression level\n", stderr);
-        break;
-    case Z_DATA_ERROR:
-        fputs("invalid or incomplete deflate data\n", stderr);
-        break;
-    case Z_MEM_ERROR:
-        fputs("out of memory\n", stderr);
-        break;
-    case Z_VERSION_ERROR:
-        fputs("zlib version mismatch!\n", stderr);
-    }
-}
-
 /* compress or decompress from stdin to stdout */
-int main(int argc, char **argv)
-{
-    int ret;
-
-    /* avoid end-of-line conversions */
-    SET_BINARY_MODE(stdin);
-    SET_BINARY_MODE(stdout);
-
-    /* do compression if no arguments */
-    if (argc == 1) {
-        ret = def(stdin, stdout, Z_DEFAULT_COMPRESSION);
-        if (ret != Z_OK)
-            zerr(ret);
-        return ret;
-    }
-
-    /* do decompression if -d specified */
-    else if (argc == 2 && strcmp(argv[1], "-d") == 0) {
-        ret = inf(stdin, stdout);
-        if (ret != Z_OK)
-            zerr(ret);
-        return ret;
-    }
-
-    /* otherwise, report usage */
-    else {
-        fputs("zpipe usage: zpipe [-d] < source > dest\n", stderr);
-        return 1;
-    }
+int main(int argc, char ** argv) {
+	if (argc == 2) {
+		FILE * f = fopen(argv[1], "rb");
+		if (f == NULL) {
+			fputs("ERROR: ", stdout);
+			fputs(argv[1], stdout);
+			fputs(" can't be opened.", stdout);
+			return Z_ERRNO;
+		}
+		FILE * f2;
+		const char zext[] = ".z\0",
+			zlibext[] = ".zlib\0",
+			nl[] = "\n\0",
+			er[] = "error reading \0",
+			ew[] = "error writing \0";
+		const int zL = strlen(zlibext);
+		int ret,
+		L = strlen(argv[1]),
+		L2 = strlen(zext);
+		if (strcmp(argv[1] + (L - L2), zext) == 0 || strcmp(argv[1] + (L - (L2 = zL)), zlibext) == 0) {
+			argv[1][L - L2] = '\0';
+			f2 = fopen(argv[1], "rb");
+			if (f2 != NULL) {
+				fclose(f);
+				fclose(f2);
+				fexists(argv[1]);
+				return -12;
+			}
+			fputs("Decompressing ", stdout);
+			fputs(argv[1], stdout);
+			fputs(" from ", stdout);
+			fputs(argv[1], stdout);
+			fputs(L2 == zL ? zlibext : zext, stdout);
+			fputs("...", stdout);
+			f2 = fopen(argv[1], "wb");
+			ret = inf(f, f2);
+			if (ret == Z_ERRNO) {
+				if (ferror(f))
+					fputs(er, stderr);
+				fputs(argv[1], stderr);
+				fputs(L2 == zL ? zlibext : zext, stderr);
+				fputs(nl, stderr);
+				if (ferror(f2))
+					fputs(ew, stderr);
+				fputs(argv[1], stderr);
+				fputs(nl, stderr);
+			}
+		} else {
+			char * n = malloc(L + L2 + 1);
+			if (n == NULL) {
+				fputs("Error: Out of Memory", stderr);
+				return Z_MEM_ERROR;
+			}
+			n[0] = '\0';
+			strcat(n, argv[1]);
+			strcat(n, L2 == zL ? zlibext : zext);
+			f2 = fopen(n, "rb");
+			if (f2 != NULL) {
+				fclose(f);
+				fclose(f2);
+				fexists(n);
+				free(n);
+				return -12;
+			}
+			fputs("Compressing ", stdout);
+			fputs(argv[1], stdout);
+			fputs(" into ", stdout);
+			fputs(n, stdout);
+			fputs("...", stdout);
+			f2 = fopen(n, "wb");
+			free(n);
+			ret = def(f, f2, Z_DEFAULT_COMPRESSION);
+			if (ret == Z_ERRNO) {
+				if (ferror(f))
+					fputs(er, stderr);
+				fputs(argv[1], stderr);
+				fputs(nl, stderr);
+				if (ferror(f2))
+					fputs(ew, stderr);
+				fputs(n, stderr);
+				fputs(nl, stderr);
+			}
+		}
+		fclose(f);
+		fclose(f2);
+		switch (ret) {
+		case Z_OK:break;
+			//case Z_ERRNO:
+			//handled already
+			//break;
+		case Z_DATA_ERROR:
+			fputs("invalid or incomplete deflate data\n", stderr);
+			break;
+		case Z_MEM_ERROR:
+			fputs("out of memory\n", stderr);
+			break;
+			//case Z_STREAM_ERROR:
+			//fputs("invalid compression level\n", stderr);
+			//break;
+			//not used in static compile
+			//case Z_VERSION_ERROR:
+			//fputs("zlib version mismatch!\n", stderr);
+			//break;
+			//not used in static compile
+		default:
+			fputs("Internal error #",stderr);
+			fputs(ret,stderr);
+			fputs(nl,stderr);
+		}
+		return ret;
+	}
+	/* otherwise, report usage */
+	fputs("Usage: give a zlib file (*.z or *.zlib) to decompress\nor any other file to compress\n(Not all *.z files are zlib. Some are archives that WinZip or WinRAR can open.)\n", stderr);
+	return 10;
 }
+/* %ERRORLEVEL%
+#define Z_OK            0
+#define Z_STREAM_END    1
+#define Z_NEED_DICT     2
+#define Z_ERRNO        (-1)
+#define Z_STREAM_ERROR (-2)
+#define Z_DATA_ERROR   (-3)
+#define Z_MEM_ERROR    (-4)
+#define Z_BUF_ERROR    (-5)
+#define Z_VERSION_ERROR (-6)
+
+help display (as in parameter error, no other action taken) -10
+error opening input file -11
+destination file exists -12
+ */
