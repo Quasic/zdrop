@@ -1,0 +1,9 @@
+*.[hc] text diff=cpp
+*.sh text eol=lf
+*.{bat,[Bb][Aa][Tt]} text eol=crlf
+*.{cmd,[Cc][Mm][Dd]} text eol=crlf
+*.md text
+.gitignore text
+.gitattributes text linguist-language=gitattributes
+.prov* text
+Makefile text eol=lf
