@@ -1,38 +1,38 @@
 ---
-generation: 2
-last_run_time: 1609518649.09576
+generation: 3
+last_run_time: 1609557031.18414
 tests:
   TAP/lintTAPbash.sh:
-    elapsed: 0.0195119380950928
-    gen: 2
-    last_pass_time: 1609518646.6867
+    elapsed: 2.5236291885376
+    gen: 3
+    last_pass_time: 1609557030.28624
     last_result: 0
-    last_run_time: 1609518646.6867
+    last_run_time: 1609557030.28624
     last_todo: 0
     mtime: 1609517494
-    seq: 4
-    total_passes: 2
+    seq: 8
+    total_passes: 3
   TAP/lintTAPgit.sh:
-    elapsed: 1.72247695922852
-    gen: 2
-    last_pass_time: 1609518649.08679
+    elapsed: 0.0140829086303711
+    gen: 3
+    last_pass_time: 1609557026.57497
     last_result: 0
-    last_run_time: 1609518649.08679
+    last_run_time: 1609557026.57497
     last_todo: 0
     mtime: 1609517494
-    seq: 6
-    total_passes: 2
+    seq: 7
+    total_passes: 3
   t/zdrop.c.sh:
-    elapsed: 0.268939971923828
-    gen: 2
+    elapsed: 4.61304306983948
+    gen: 3
     last_fail_time: 1609518054.30153
-    last_pass_time: 1609518646.93224
+    last_pass_time: 1609557031.17752
     last_result: 0
-    last_run_time: 1609518646.93224
+    last_run_time: 1609557031.17752
     last_todo: 0
-    mtime: 1609518402
-    seq: 5
+    mtime: 1609556868
+    seq: 9
     total_failures: 1
-    total_passes: 1
+    total_passes: 2
 version: 1
 ...

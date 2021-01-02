@@ -1,13 +1,18 @@
 #!/bin/bash
 cd "$(dirname "${BASH_SOURCE[0]}")/.."||exit 1
-source TAP/TAP.sh zdrop.c 33
+source TAP/TAP.sh zdrop.c 36
 t=$(gcc -print-file-name=libz.a);wasok 'Looking for zlib'||
 diag "Searched $(gcc -print-search-dirs)"
 isnt "$t" 'libz.a' 'zlib installed'
-#shellcheck disable=SC2016
-okrun '[ -f "$t" ]' 'libz.a exists'
-#shellcheck disable=SC2016
-okrun 'gcc -pipe -fexpensive-optimizations -O3 zdrop.c "$t" -o t.exe' 'compile/link binary'
+okname 'libz.a exists' [ -f "$t" ]
+okname preprocess gcc -E zdrop.c -o /dev/null
+okname compile gcc -S zdrop.c -o /dev/null
+okname assemble gcc -c zdrop.c -o /dev/null
+okname link gcc -pass-exit-codes -pipe -fexpensive-optimizations -O3 zdrop.c "$t" -o t.exe
+diag 'gcc version'
+gcc -dumpversion|diag
+diag 'compiling for'
+gcc -dumpmachine|diag
 okrun '[ -f t.exe ]' 't.exe produced'
 okrun 'chmod +x t.exe' 'chmod'
 t=$(./t.exe 2>&1);
