@@ -1,5 +1,5 @@
 #!/bin/bash
-Version=0.1b
+Version=0.1h
 if [ "$1" = --help ]||[ "$1" = -h ]||[ "$2" = --help ]||[ "$2" = -h ]
 then printf '%s
 sets up prove to run TAP testcases
@@ -31,6 +31,9 @@ menu(){
 	S) o[${#o[@]}]=--shuffle;;
 	Q) exit;;
 	'.') o[${#o[@]}]=--state=save;;
+	'@') export TAP_HARNESS_SOURCE_FACTORY_VOTES=$((1-TAP_HARNESS_SOURCE_FACTORY_VOTES))
+		[ "$TAP_HARNESS_SOURCE_FACTORY_VOTES" = 1 ]||printf 'not '
+		printf 'showing SourceHandler votes';;
 	',') useRC=$((1-useRC))
 		if [ "$useRC" != 1 ]
 		then printf 'Not using .proverc\n'
@@ -52,6 +55,9 @@ menu(){
 		printf 'Returned code %i\n' $?;;
 	'%') o=();;
 	'_') t=();;
+	'"') read -rep './' q&&
+		[ -f "$q" ]&&
+		t[${#t[@]}]="$q";;
 	*) printf 'Unknown command: %s\n' "$1"
 	esac
 	a=()
@@ -68,15 +74,17 @@ Q quit without running any tests
 ! run tests and return to this menu
 %% clear options except --norc (,) and --state=[test group]
 _ clear tests
+" add test
 . save test info to .prove
 / add TAP/lintTAP*
+P show all errors (-p option)
+@ toggle showing SourceHandler votes
 '
 	[ -f .prove ]&&printf 'L run tests ran at last save
 - run tests that failed last save (save again to eliminate new passes)
 + run tests that passed last save (check for new errors)
 F run any tests modified since last save
 * run all tests in fastest to slowest order
-P show all errors (-p option)
 '
 	[ ${#t[@]} -gt 1 ]&&printf 'S to shuffle\n'
 	printf ', '
@@ -91,7 +99,7 @@ then
 	then
 		printf 'Reading /sys/devices/system/cpu/present...'
 		cpus=$(</sys/devices/system/cpu/present)
-		cpus="${cpus:2}"
+		cpus=$((${cpus:2}+1))
 	elif [ -f /proc/stat ]
 	then
 		printf 'Reading /proc/stat...'
@@ -111,26 +119,38 @@ then
 		for f in TAP/Parser/SourceHandler/*.pm
 		do [[ "$f" =~ ^TAP/Parser/SourceHandler/(.*)\.pm$ ]]&&o[${#o[@]}]="--source=${BASH_REMATCH[1]}"
 		done
-		PERL5LIB="$(realpath .;[ "$PERL5LIB" = '' ]||perl -V:path_sep)$PERL5LIB"
+		#shellcheck disable=SC2154
+		PERL5LIB="$(realpath .)$(if [ "$PERL5LIB" != '' ];then eval "$(perl -V:path_sep)";printf '%s' "$path_sep$PERL5LIB";fi)"
+		export PERL5LIB
 	fi
-	for f
+	for p
 	do
-		if [ "${f:0:1}" = - ]
+		if [ "${p:0:1}" = - ]
 		then
-			if [ "$f" = --norc ]
+			if [ "$p" = --norc ]
 			then useRC=0
-			elif [ "${f:0:8}" = --state= ]&&[ "$f" != --state=save ]
-			then t[${#t[@]}]="$f"
-			else o[${#o[@]}]="$f"
+			elif [ "${p:0:8}" = --state= ]&&
+				[ "$p" != --state=save ]
+			then t[${#t[@]}]="$p"
+			else o[${#o[@]}]="$p"
 			fi
-		elif [ "${f:0:7}" = lintTAP ]&&[ -f "TAP/$f" ]
+		else
+			f=$(basename "$p")
+			if [ "${f:0:7}" = lintTAP ]&&
+				[ -f "TAP/$f" ]
 		then t[${#t[@]}]="TAP/$f"
 		else
 			n=${#t[@]}
 			for q in t/"$f".* "t/$f" "t/testcases$f"
 			do [ -f "$q" ]&&t[${#t[@]}]="$q"
 			done
-			[ "$n" = ${#t[@]} ]&&printf 'No test was found for %s\n' "$f"
+				if [ "$n" != ${#t[@]} ]
+				then true
+				elif [ -f "$p" ]
+				then t[${#t[@]}]="$p"
+				else printf 'No test was found for %s\n' "$f"
+				fi
+			fi
 		fi
 	done
 	for q in t/testcases.*
@@ -167,4 +187,5 @@ else
 	printf '\e]0;[Failed to start] %s testcases\e\\Failed to chdir!\n' "$TESTING"
 fi
 [[ "$-" =~ 'i' ]]&&read -rn1 -p 'Press a key to close log...'
+printf '\e]0;\e'\\
 exit $r
