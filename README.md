@@ -2,7 +2,7 @@
 Drag and drop zlib format compressor and decompressor for Windows
 
 # Installation
-Either download a release executable or compile one.
+Either download a release executable or compile one. (See below.)
 
 Installation is drag&drop: just drag the file where you want it.
 
