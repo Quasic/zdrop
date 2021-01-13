@@ -1,6 +1,6 @@
 #!/bin/bash
 cd "$(dirname "${BASH_SOURCE[0]}")/.."||exit 1
-source TAP/TAP.sh zdrop.c 36
+source TAP/TAP.bash zdrop.c 36
 t=$(gcc -print-file-name=libz.a);wasok 'Looking for zlib'||
 diag "Searched $(gcc -print-search-dirs)"
 isnt "$t" 'libz.a' 'zlib installed'
