@@ -12,8 +12,9 @@ based on public domain zpipe.c Version 1.4 (11 December 2005) by Mark Adler */
    1.0   5 Oct 2014  Refined code, fixed crash on file doesn't exist bug, added .z extension support, tested with zlib-1.2.8
    1.1  16 Dec 2015  Cleaned up code for source release
    1.2  18 Dec 2020  Report VERSION, ZLIB_VERSION, fix internal error# report
+   1.2a 13 Jan 2021  fix free too soon and missing newlines, and add success confirmation
 */
-#define VERSION "1.2"
+#define VERSION "1.2a"
 
 /*Windows bugs:
 The console doesn't stay onscreen long enough to read error messages.
@@ -188,7 +189,7 @@ int main(int argc, char ** argv) {
 			fputs(" from ", stdout);
 			fputs(argv[1], stdout);
 			fputs(L2 == zL ? zlibext : zext, stdout);
-			fputs("...", stdout);
+			fputs("...\n", stdout);
 			f2 = fopen(argv[1], "wb");
 			ret = inf(f, f2);
 			if (ret == Z_ERRNO) {
@@ -223,9 +224,8 @@ int main(int argc, char ** argv) {
 			fputs(argv[1], stdout);
 			fputs(" into ", stdout);
 			fputs(n, stdout);
-			fputs("...", stdout);
+			fputs("...\n", stdout);
 			f2 = fopen(n, "wb");
-			free(n);
 			ret = def(f, f2, Z_DEFAULT_COMPRESSION);
 			if (ret == Z_ERRNO) {
 				if (ferror(f))
@@ -236,7 +236,8 @@ int main(int argc, char ** argv) {
 					fputs(ew, stderr);
 				fputs(n, stderr);
 				fputs(nl, stderr);
-			}
+			} else fputs("Success.\n",stdout);
+			free(n);
 		}
 		fclose(f);
 		fclose(f2);

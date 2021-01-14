@@ -12,12 +12,11 @@ Just delete the program file. No registry items or setup files are created by th
 # Compiling
 Requires zlib.h and libz.a from your system's zlib (or zlib-dev) package, or from [zlib.net](//zlib.net)
 
-If you have make, run ```make test``` then ```make install```
+If you have gcc, run t/zdrop.c.bat to test, then makegcc.bat to open a window with the executable, which you can drag where you want to use it.
 
 If you have an IDE, open zdrop.c and add zlib.h and libz.a
 
-If you have gcc with zlib installed properly, (run ```gcc -print-file-name=libz.a``` to find <libzpath> then run ```gcc zdrop.c <libzpath> -o zdrop.exe```
-You should be able to use -O3 and -fexpensive-optimizations if you like.
+If you want to use make, run ```make test``` then ```make install```
 
 # History
 This program was made as an answer for [a MajorGeeks.com forum question](//forums.majorgeeks.com/index.php?threads/zlib-uncompression-for-an-idiot.223640/)
