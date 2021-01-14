@@ -11,13 +11,13 @@ else
         # Initial commit: diff against an empty tree object
 	if ! against=$(git hash-object -w -t tree /dev/null)
 	then
-		#shellcheck source=TAP/TAP.sh
-		source "$(dirname "${BASH_SOURCE[0]}")/TAP.sh" "$(basename "$0")" 'cwd not in a git repo'
+		#shellcheck source=TAP/TAP.bash
+		source "$(dirname "${BASH_SOURCE[0]}")/TAP.bash" "$(basename "$0")" 'cwd not in a git repo'
 		endtests
 	fi
 fi
-#shellcheck source=TAP/TAP.sh
-source "$(dirname "${BASH_SOURCE[0]}")/TAP.sh" "$(basename "${BASH_SOURCE[0]}") $Version" 5
+#shellcheck source=TAP/TAP.bash
+source "$(dirname "${BASH_SOURCE[0]}")/TAP.bash" "$(basename "${BASH_SOURCE[0]}") $Version" 5
 [ "$(git config --bool hooks.allownonascii)" == 'true' ]&&skip 'hooks.allownonascii is true' 2
 is "$(git diff --name-only --cached --diff-filter=A -z "$against" | LC_ALL=C tr -d '[ -~]\0' | wc -c)" 0 'staged ASCII filenames'
 is "$(git diff --name-only --diff-filter=A -z "$against" | LC_ALL=C tr -d '[ -~]\0' | wc -c)" 0 'ASCII filenames'
