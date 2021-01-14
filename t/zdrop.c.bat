@@ -1,6 +1,13 @@
 @echo off
 cd %~dp0\..
-call TAP\startTests zdrop.c 34
+call TAP\startTests zdrop.c 60
+set notready=0
+for %%i in (zdrop.c.zlib t.s t.s.zlib t.o t.o.zlib t.exe t.exe.zlib s.c s.c.zlib) do if exist %%i echo # A file used in this test, %%i, already exists. Please delete it before re-running.&set notready=1
+if "%notready%"=="1" (
+	call TAP\bailout "not clean for testing"
+) else (
+	call TAP\pass clean
+)
 for /f "tokens=*" %%i in ('gcc -print-file-name^=libz.a') do set libzpath=%%i
 call TAP\wasok "Looking for zlib"
 echo # libzpath=%libzpath%
@@ -10,11 +17,13 @@ gcc -E zdrop.c -o NUL
 call TAP\wasok preprocess
 gcc -S zdrop.c -o t.s
 call TAP\wasok compile
+call TAP\pathexist t.s "t.s compiled"
 gcc -c zdrop.c -o t.o
 call TAP\wasok assemble
+call TAP\pathexist t.o "t.o assembled"
 gcc -pass-exit-codes -pipe -fexpensive-optimizations -O3 zdrop.c "%libzpath%" -o t.exe
 call TAP\wasok link
-call TAP\pathexist t.exe "t.exe produced"
+call TAP\pathexist t.exe "t.exe linked"
 .\t.exe 2>NUL
 call TAP\is "%ERRORLEVEL%" "10" testrun
 
@@ -43,7 +52,7 @@ call TAP\pathexist s.c.zlib "changed uncompressed filename"
 .\t.exe s.c.zlib
 call TAP\wasok "uncompress binary"
 call TAP\pathexist s.c "uncompressed binary"
-fc /b t.exe s.c
+fc /b t.s s.c
 call TAP\wasok "diff binary"
 del s.c.zlib
 call TAP\wasok "rm self-compressed binary"
@@ -104,4 +113,4 @@ call TAP\wasok "rm test object file"
 
 del t.exe
 call TAP\wasok "rm test binary"
-endtests
+call TAP\endtests
