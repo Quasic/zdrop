@@ -20,3 +20,4 @@ If you want to use make, run ```make test``` then ```make install```
 
 # History
 This program was made as an answer for [a MajorGeeks.com forum question](//forums.majorgeeks.com/index.php?threads/zlib-uncompression-for-an-idiot.223640/)
+from a zlib example public domain source [zpipe.c](//zlib.net/zpipe.c).
