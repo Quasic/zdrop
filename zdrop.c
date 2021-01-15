@@ -13,8 +13,9 @@ based on public domain zpipe.c Version 1.4 (11 December 2005) by Mark Adler */
    1.1  16 Dec 2015  Cleaned up code for source release
    1.2  18 Dec 2020  Report VERSION, ZLIB_VERSION, fix internal error# report
    1.2a 13 Jan 2021  fix free too soon and missing newlines, and add success confirmation
+   1.2b 14 Jan 2021  fix success confirmation
 */
-#define VERSION "1.2a"
+#define VERSION "1.2b"
 
 /*Windows bugs:
 The console doesn't stay onscreen long enough to read error messages.
@@ -236,13 +237,15 @@ int main(int argc, char ** argv) {
 					fputs(ew, stderr);
 				fputs(n, stderr);
 				fputs(nl, stderr);
-			} else fputs("Success.\n",stdout);
+			}
 			free(n);
 		}
 		fclose(f);
 		fclose(f2);
 		switch (ret) {
-		case Z_OK:break;
+		case Z_OK:
+			fputs("Success.\n",stdout);
+			break;
 			//case Z_ERRNO:
 			//handled already
 			//break;

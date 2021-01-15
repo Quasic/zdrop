@@ -6,6 +6,7 @@
 printf '%s\n' "${BASH_SOURCE[0]} 0.1"
 if cd "$(dirname "${BASH_SOURCE[0]}")"&&[ -d TAP ]
 then
+	#shellcheck disable=SC1091
 	[ -f ../TAP/TAP/updateTAP.bsh ]&&
 		source ../TAP/TAP/updateTAP.bsh
 	source TAP/testcases.bash zdrop "$@"
