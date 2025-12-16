@@ -17,8 +17,11 @@ on:
 jobs:
   # This workflow contains a single job called "build"
   test:
+    strategy:
+      matrix:
+        os: [windows-2019, windows-2022, windows-latest ]
     # The type of runner that the job will run on
-    runs-on: windows-2016
+    runs-on: ${{ matrix.os }}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
