@@ -1,0 +1,31 @@
+name: Windows CI with Prove
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  test:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Install Perl
+      shell: powershell
+      run: |
+        choco install strawberryperl -y
+        refreshenv
+
+    - name: Set Up Dependencies
+      shell: bash
+      run: |
+        cpan install Test::Harness
+
+    - name: Run Tests
+      shell: bash
+      run: |
+        prove -l
