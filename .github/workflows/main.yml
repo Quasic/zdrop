@@ -24,14 +24,14 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v6
-
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: prove t\zdrop.c.bat t\zdrop.c.sh
+      - name: Run prove
+        run: prove t\zdrop.c.bat
+      - name: winbash w/o prove
+        run: bash t\zdrop.c.sh
 
   linux:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
       - name: Linux test
-        run: prove t/zdrop.c.sh
+        run: bash t/zdrop.c.sh
