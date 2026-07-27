@@ -46,7 +46,7 @@ else
 	df='printf "no way to diff %s %s" '
 	fail 'Please install git or diff'
 fi
-okrun "$df t.exe t.s" self-diff
+okrun "cmp t.exe t.s" self-diff
 okrun 'rm t.s.zlib' 'rm self-compressed binary'
 okrun 'rm t.s' 'rm self-uncompressed binary'
 okname 'compress source' ./t.exe zdrop.c
