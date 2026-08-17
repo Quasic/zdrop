@@ -4,9 +4,9 @@ name: CI
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
-    branches: [ master ]
+    branches: [ master, wip ]
   pull_request:
-    branches: [ master ]
+    branches: [ master, wip ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -16,7 +16,8 @@ jobs:
   windows:
     strategy:
       matrix:
-        os: [windows-2019, windows-2022, windows-latest ]
+        os: [windows-11-arm, windows-2022, windows-latest ]
+        bits: [64, 32]
     # The type of runner that the job will run on
     runs-on: ${{ matrix.os }}
 
@@ -27,11 +28,25 @@ jobs:
       - name: Run prove
         run: prove t\zdrop.c.bat
       - name: winbash w/o prove
-        run: bash t\zdrop.c.sh
+        run: bash t\zdrop.c.sh bin
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.os }}-${{ matrix.bits }}
+          path: bin/
 
   linux:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ ubuntu-22.04-arm, ubuntu-24.04-arm, ubuntu-latest ]
+        bits: [64, 32]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v6
       - name: Linux test
-        run: bash t/zdrop.c.sh
+        run: bash t/zdrop.c.sh bin
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.os }}-${{ matrix.bits }}
+          path: bin/
