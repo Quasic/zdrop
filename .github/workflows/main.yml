@@ -32,14 +32,15 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: windows-${{ matrix.bits }}
+          name: ${{ matrix.os }}-${{ matrix.bits }}
           path: bin/
 
   linux:
     strategy:
       matrix:
+        os: [ ubuntu-22.04-arm, ubuntu-24.04-arm, ubuntu-latest ]
         bits: [64, 32]
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v6
       - name: Linux test
@@ -47,5 +48,5 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: linux-${{ matrix.bits }}
+          name: ${{ matrix.os }}-${{ matrix.bits }}
           path: bin/
