@@ -16,7 +16,8 @@ jobs:
   windows:
     strategy:
       matrix:
-        os: [windows-2019, windows-2022, windows-latest ]
+        os: [windows-11-arm, windows-2022, windows-latest ]
+        bits: [64, 32]
     # The type of runner that the job will run on
     runs-on: ${{ matrix.os }}
 
@@ -27,11 +28,24 @@ jobs:
       - name: Run prove
         run: prove t\zdrop.c.bat
       - name: winbash w/o prove
-        run: bash t\zdrop.c.sh
+        run: bash t\zdrop.c.sh bin
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-${{ matrix.bits }}
+          path: bin/
 
   linux:
+    strategy:
+      matrix:
+        bits: [64, 32]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
       - name: Linux test
-        run: bash t/zdrop.c.sh
+        run: bash t/zdrop.c.sh bin
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-${{ matrix.bits }}
+          path: bin/

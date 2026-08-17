@@ -55,5 +55,10 @@ okname 'uncompress source' ./t.exe s.c.zlib
 okrun "$df zdrop.c s.c" 'compare sources'
 okname 'rm compressed source' rm s.c.zlib
 okname 'rm uncompressed source' rm s.c
-okrun 'rm t.exe' 'rm test binary'
+if [ "$1" = bin ]
+then
+	binf=$()
+	okrun "mkdir -p bin&&mv t.exe bin/$binf" "Saving to bin/$binf"
+else okrun 'rm t.exe' 'rm test binary'
+fi
 endtests
