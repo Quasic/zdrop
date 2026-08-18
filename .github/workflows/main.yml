@@ -30,7 +30,7 @@ jobs:
       - name: winbash w/o prove
         run: bash t\zdrop.c.sh -static bin
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ${{ matrix.os }}-${{ matrix.bits }}
           path: bin/
@@ -46,7 +46,7 @@ jobs:
       - name: Linux test
         run: bash t/zdrop.c.sh -static bin
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ${{ matrix.os }}-${{ matrix.bits }}
           path: bin/
