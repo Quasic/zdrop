@@ -17,10 +17,11 @@ okname preprocess gcc -E zdrop.c -o /dev/null
 okname compile gcc -S zdrop.c -o /dev/null
 okname assemble gcc -c zdrop.c -o /dev/null
 gccp=(-fexpensive-optimizations -O3)
-[ "$1" == -static ]&&{
-	gccp=("${gccp[@]}" -static)
+while [ "$1" == -static ]||[ "$1" == -m32 ]||[ "$1" == -m64 ]
+do
+	gccp=("${gccp[@]}" "$1")
 	shift
-}
+done
 okname link gcc -pipe -pass-exit-codes "${gccp[@]}" zdrop.c "$t" -o t.exe
 diag 'gcc version'
 gcc -dumpversion|diag
