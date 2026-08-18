@@ -1,14 +1,27 @@
 #!/bin/bash
 cd "$(dirname "${BASH_SOURCE[0]}")/.."||exit 1
-source TAP/TAP.bash zdrop.c 36
+verFind(){
+	local v="$1"
+	shift
+	sed -nE 's/^#define '"$v"'VERSION[[:space:]]+"([^"]+)".*/\1/p' "$@"
+}
+source TAP/TAP.bash zdrop.c 37
 t=$(gcc -print-file-name=libz.a);wasok 'Looking for zlib'||
 diag "Searched $(gcc -print-search-dirs)"
 isnt "$t" 'libz.a' 'zlib installed'
 okname 'libz.a exists' [ -f "$t" ]
+zlibver=$(gcc -x c - -E -dM <<<'#include <zlib.h>
+ZLIB_VERSION'| verFind ZLIB_)
+wasok "zlib.h exists, version $zlibver"
 okname preprocess gcc -E zdrop.c -o /dev/null
 okname compile gcc -S zdrop.c -o /dev/null
 okname assemble gcc -c zdrop.c -o /dev/null
-okname link gcc -pass-exit-codes -pipe -fexpensive-optimizations -O3 zdrop.c "$t" -o t.exe
+gccp=(-fexpensive-optimizations -O3)
+[ "$1" == -static ]&&{
+	gccp=("${gccp[@]}" -static)
+	shift
+}
+okname link gcc -pipe -pass-exit-codes "${gccp[@]}" zdrop.c "$t" -o t.exe
 diag 'gcc version'
 gcc -dumpversion|diag
 diag 'compiling for'
@@ -57,7 +70,7 @@ okname 'rm compressed source' rm s.c.zlib
 okname 'rm uncompressed source' rm s.c
 if [ "$1" = bin ]
 then
-	binf=$()
+	binf="zdrop$(verFind '' zdrop.c)-zlib$zlibver-$(uname -m).exe"
 	okrun "mkdir -p bin&&mv t.exe bin/$binf" "Saving to bin/$binf"
 else okrun 'rm t.exe' 'rm test binary'
 fi
