@@ -24,13 +24,13 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@main
       - name: Run prove
         run: prove t\zdrop.c.bat
       - name: winbash w/o prove
         run: bash t\zdrop.c.sh -static bin
       - name: Upload artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@main
         with:
           name: ${{ matrix.os }}-${{ matrix.bits }}
           path: bin/
@@ -42,11 +42,11 @@ jobs:
         bits: [64, 32]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@main
       - name: Linux test
         run: bash t/zdrop.c.sh -static bin
       - name: Upload artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@main
         with:
           name: ${{ matrix.os }}-${{ matrix.bits }}
           path: bin/
