@@ -28,7 +28,7 @@ jobs:
       - name: Run prove
         run: prove t\zdrop.c.bat
       - name: winbash w/o prove
-        run: bash t\zdrop.c.sh bin
+        run: bash t\zdrop.c.sh -static bin
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -44,7 +44,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Linux test
-        run: bash t/zdrop.c.sh bin
+        run: bash t/zdrop.c.sh -static bin
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
