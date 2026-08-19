@@ -15,7 +15,6 @@ jobs:
     strategy:
       matrix:
         os: [windows-11-arm, windows-2022, windows-2025 ]
-        bits: [64]
     # The type of runner that the job will run on
     runs-on: ${{ matrix.os }}
 
@@ -31,19 +30,23 @@ jobs:
           echo "Runner arch: $RUNNER_ARCH"
       - name: Run prove
         run: prove t\zdrop.c.bat
+      - name: winbash w/o prove -static
+        run: bash t\zdrop.c.sh -static bin
+      - name: save static build
+        shell: bash
+        run: for f in bin/*;do mv "$f" "static-$f";done
       - name: winbash w/o prove
-        run: bash t\zdrop.c.sh -m${{matrix.bits}} -static bin
+        run: bash t\zdrop.c.sh bin
       - name: Upload artifact
         uses: actions/upload-artifact@main
         with:
-          name: ${{ matrix.os }}-${{ matrix.bits }}
+          name: ${{ matrix.os }}
           path: bin/
 
   linux:
     strategy:
       matrix:
         os: [ ubuntu-22.04, ubuntu-24.04, ubuntu-22.04-arm, ubuntu-24.04-arm ]
-        bits: [64]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@main
@@ -54,9 +57,14 @@ jobs:
           echo "Runner OS: $RUNNER_OS"
           echo "Runner arch: $RUNNER_ARCH"
       - name: Linux test
-        run: bash t/zdrop.c.sh -m${{matrix.bits}} -static bin
+        run: bash t/zdrop.c.sh -static bin
+      - name: save static build
+        shell: bash
+        run: for f in bin/*;do mv "$f" "static-$f";done
+      - name: Linux test
+        run: bash t/zdrop.c.sh bin
       - name: Upload artifact
         uses: actions/upload-artifact@main
         with:
-          name: ${{ matrix.os }}-${{ matrix.bits }}
+          name: ${{ matrix.os }}
           path: bin/
