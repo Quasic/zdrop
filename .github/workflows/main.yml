@@ -1,8 +1,6 @@
 name: CI
 
-# Controls when the action will run. 
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
   push:
     branches: [ master, wip ]
   pull_request:
@@ -29,7 +27,6 @@ jobs:
         shell: bash
         run: |
           uname -m
-          dpkg --print-architecture || true
           echo "Runner OS: $RUNNER_OS"
           echo "Runner arch: $RUNNER_ARCH"
       - name: Run prove
