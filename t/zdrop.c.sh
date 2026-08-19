@@ -23,9 +23,9 @@ do
 	shift
 done
 okname link-control-test-gcc gcc -pipe -pass-exit-codes -v "${gccp[@]}" -x c - -o t.exe <<<'int main(void){return 0;}'
-okrun ls -l t.exe||ls -a
-okrun file t.exe
-okrun rm t.exe
+okname ls ls -l t.exe||ls -a
+okname file file t.exe
+okname rm rm t.exe
 okname link gcc -pipe -pass-exit-codes "${gccp[@]}" zdrop.c "$t" -o t.exe
 diag 'gcc version'
 gcc -dumpversion|diag
