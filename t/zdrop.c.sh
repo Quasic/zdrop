@@ -22,7 +22,7 @@ do
 	gccp=("${gccp[@]}" "$1")
 	shift
 done
-okname link-control-test-gcc gcc -pipe -pass-exit-codes "${gccp[@]}" - "$t" -o t.exe <<<'int main(void){return 0;}'
+okname link-control-test-gcc gcc -pipe -pass-exit-codes "${gccp[@]}" -x c - "$t" -o t.exe <<<'int main(void){return 0;}'
 okrun file t.exe
 okrun rm t.exe
 okname link gcc -pipe -pass-exit-codes "${gccp[@]}" zdrop.c "$t" -o t.exe
