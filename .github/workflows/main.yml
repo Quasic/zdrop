@@ -16,8 +16,8 @@ jobs:
   windows:
     strategy:
       matrix:
-        os: [windows-11-arm, windows-2022, windows-latest ]
-        bits: [64, 32]
+        os: [windows-11-arm, windows-2022, windows-2025 ]
+        bits: [64]
     # The type of runner that the job will run on
     runs-on: ${{ matrix.os }}
 
@@ -25,6 +25,13 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@main
+      - name: Show platform
+        shell: bash
+        run: |
+          uname -m
+          dpkg --print-architecture || true
+          echo "Runner OS: $RUNNER_OS"
+          echo "Runner arch: $RUNNER_ARCH"
       - name: Run prove
         run: prove t\zdrop.c.bat
       - name: winbash w/o prove
@@ -38,11 +45,17 @@ jobs:
   linux:
     strategy:
       matrix:
-        os: [ ubuntu-22.04-arm, ubuntu-24.04-arm, ubuntu-latest ]
-        bits: [64, 32]
+        os: [ ubuntu-22.04, ubuntu-24.04, ubuntu-22.04-arm, ubuntu-24.04-arm ]
+        bits: [64]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@main
+      - name: Show platform
+        run: |
+          uname -m
+          dpkg --print-architecture || true
+          echo "Runner OS: $RUNNER_OS"
+          echo "Runner arch: $RUNNER_ARCH"
       - name: Linux test
         run: bash t/zdrop.c.sh -static bin
       - name: Upload artifact
