@@ -5,7 +5,7 @@ verFind(){
 	shift
 	sed -nE 's/^#define '"$v"'VERSION[[:space:]]+"([^"]+)".*/\1/p' "$@"
 }
-source TAP/TAP.bash zdrop.c 40
+source TAP/TAP.bash zdrop.c 41
 t=$(gcc -print-file-name=libz.a);wasok 'Looking for zlib'||
 diag "Searched $(gcc -print-search-dirs)"
 isnt "$t" 'libz.a' 'zlib installed'
@@ -22,7 +22,8 @@ do
 	gccp=("${gccp[@]}" "$1")
 	shift
 done
-okname link-control-test-gcc gcc -pipe -pass-exit-codes "${gccp[@]}" -x c - -o t.exe <<<'int main(void){return 0;}'
+okname link-control-test-gcc gcc -pipe -pass-exit-codes -v "${gccp[@]}" -x c - -o t.exe <<<'int main(void){return 0;}'
+okrun ls -l t.exe||ls -a
 okrun file t.exe
 okrun rm t.exe
 okname link gcc -pipe -pass-exit-codes "${gccp[@]}" zdrop.c "$t" -o t.exe
