@@ -17,12 +17,12 @@ okname preprocess gcc -E zdrop.c -o /dev/null
 okname compile gcc -S zdrop.c -o /dev/null
 okname assemble gcc -c zdrop.c -o /dev/null
 gccp=(-fexpensive-optimizations -O3)
-while [ "$1" == -static ]||[ "$1" == -m32 ]||[ "$1" == -m64 ]
+while [ "${1:0:1}" == - ]
 do
 	gccp=("${gccp[@]}" "$1")
 	shift
 done
-okname link-control-test-gcc gcc -pipe -pass-exit-codes "${gccp[@]}" -x c - "$t" -o t.exe <<<'int main(void){return 0;}'
+okname link-control-test-gcc gcc -pipe -pass-exit-codes "${gccp[@]}" -x c - -o t.exe <<<'int main(void){return 0;}'
 okrun file t.exe
 okrun rm t.exe
 okname link gcc -pipe -pass-exit-codes "${gccp[@]}" zdrop.c "$t" -o t.exe

@@ -56,7 +56,7 @@ jobs:
           dpkg --print-architecture || true
           echo "Runner OS: $RUNNER_OS"
           echo "Runner arch: $RUNNER_ARCH"
-      - name: Linux test
+      - name: Linux static test
         run: bash t/zdrop.c.sh -static bin
       - name: save static build
         shell: bash
