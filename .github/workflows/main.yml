@@ -54,7 +54,7 @@ jobs:
           echo "Runner OS: $RUNNER_OS"
           echo "Runner arch: $RUNNER_ARCH"
       - name: Linux test
-        run: bash t\zdrop.c.sh -m${{matrix.bits}} -static bin
+        run: bash t/zdrop.c.sh -m${{matrix.bits}} -static bin
       - name: Upload artifact
         uses: actions/upload-artifact@main
         with:
